@@ -3,6 +3,7 @@ package com.kingbase.lucene.file.web.servlet;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
@@ -39,7 +40,7 @@ public class BaseFileServlet extends HttpServlet {
 	@Override
 	public void init(ServletConfig config) throws ServletException {
 		super.init(config);
-		InputStream stream = config.getServletContext().getResourceAsStream("/fileupload.properties");
+		InputStream stream =BaseFileServlet.class.getResourceAsStream("/fileupload.properties");
 		if(stream==null){
 			log.warn("fileupload.properties配置文件不存在");
 		}else{
@@ -76,16 +77,33 @@ public class BaseFileServlet extends HttpServlet {
 	 * 添加索引
 	 * @param request
 	 * @param response
+	 * @throws IOException 
 	 */
-	private void addIndex(HttpServletRequest request, HttpServletResponse response) {
-		String tempPath=properties.getProperty("tempPath");
+	private void addIndex(HttpServletRequest request, HttpServletResponse response) throws IOException {
+		PrintWriter out = response.getWriter();
+		String tempPath=properties.getProperty("tempPath");//临时目录的名称
+		if(tempPath==null){
+			tempPath="/temp";
+		}
+		String filePath=request.getSession().getServletContext().getRealPath(tempPath);//临时目录的绝对路径
+		File tempFile = new File(filePath);
+		if(!tempFile.exists()){
+			tempFile.mkdirs();//如果临时文件不存在 则级联创建
+	    }
+		
+		String maxSize=properties.getProperty("maxSize");//上传文件的最大字节
+		int maxSizeMB=2;//默认最大上传文件大小
+		if(maxSize==null){
+			maxSizeMB=Integer.parseInt(maxSize);
+		}
+		
 		DiskFileItemFactory factory = new DiskFileItemFactory();
 		// 最大缓存
-		factory.setSizeThreshold(5 * 1024);
+		factory.setSizeThreshold(maxSizeMB * 1024);
 		// 设置临时文件目录
 		ServletFileUpload upload = new ServletFileUpload(factory);
 		// 文件最大上限
-		upload.setSizeMax(2 * 1024 * 1024);
+		upload.setSizeMax(maxSizeMB * 1024 * 1024);
 		try {
 			List<File> files=new ArrayList<File>();
 			// 获取所有文件列表
@@ -94,20 +112,23 @@ public class BaseFileServlet extends HttpServlet {
 				if (!item.isFormField()) {
 					// 文件名
 					String fileName = item.getName();
-					File file = new File(tempPath,fileName);
+					File file = new File(filePath,fileName);
 					item.write(file);
 					files.add(file);
 				}
 			}
 			//添加索引
 			IBaseFileService baseFileService=new BaseFileServiceImpl();
-			baseFileService.addIndexes(LUCENE_FILE_BASE,files);
+			boolean success=baseFileService.addIndexes(LUCENE_FILE_BASE,files);
 			
 			//删除临时文件
 			FileUtil fileUtil=new FileUtil();
 			fileUtil.deleteFiles(files);
+			
+			out.print("success:"+success);
 		} catch (Exception e) {
 			e.printStackTrace();
+			out.print("success:false");
 		}
 	}
 
