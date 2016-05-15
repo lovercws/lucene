@@ -49,8 +49,9 @@ public class IndexBuilding {
 	 * 创建索引
 	 * @param data
 	 * @param configName
+	 * @throws IOException 
 	 */
-	public void build(List<Map<String,Object>> list,String configName){
+	public void build(List<Map<String,Object>> list,String configName) throws IOException{
 		try {
 			//获取IndexWriter
 			IndexWriter indexWriter = IndexWriterFactory.create(configName);
@@ -66,6 +67,7 @@ public class IndexBuilding {
 		} catch (IOException e) {
 			IndexWriterFactory.rollback(configName);//回滚
 			log.error("建立索引失败",e);
+			throw new IOException();
 		}
 	}
 	

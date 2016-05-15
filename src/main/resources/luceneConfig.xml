@@ -18,9 +18,9 @@ fields 单个字段的域
 	tokenized 分词 true false
  -->
 <lucene>
-	<config name="lucene_directory_fs">
+	<config name="lucene_file_base">
 		<version>5.5.1</version>
-		<directory>lucene/directory/fs</directory>
+		<directory>lucene/file/base</directory>
 		<directory_type>fs</directory_type>
 		<analyzer>StandardAnalyzer</analyzer>
 		<fields>

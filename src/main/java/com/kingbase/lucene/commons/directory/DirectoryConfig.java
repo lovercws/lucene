@@ -27,7 +27,7 @@ public class DirectoryConfig {
 			directory=FSDirectoryFactory.create(dir, configName);
 			break;
 		default:
-			directory=RamDirectoryFactory.create(configName);
+			directory=FSDirectoryFactory.create(dir, configName);
 			break;
 		}
 		return directory;

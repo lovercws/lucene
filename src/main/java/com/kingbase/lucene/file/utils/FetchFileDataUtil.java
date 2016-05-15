@@ -41,6 +41,45 @@ public class FetchFileDataUtil {
 		}
 		return data;
 	}
+	
+	/**
+	 * 从文件集合中抽取数据
+	 * @param configName
+	 * @param files
+	 * @return
+	 * @throws FileNotFoundException
+	 */
+	public List<Map<String,Object>> fetchFileDatas(String configName, List<File> files) throws FileNotFoundException {
+		ReadConfig config=new ReadConfig(configName);
+		Map<String, Map<String, String>> fields = config.getFields();
+		
+		List<Map<String,Object>> data=new ArrayList<Map<String,Object>>();
+		for (File file : files) {
+			Map<String,Object> map=fetchFileData(file,fields);
+			data.add(map);
+		}
+		return data;
+	}
+	
+	
+	/**
+	 * 从一个文件中抽取数据
+	 * @param configName
+	 * @param files
+	 * @return
+	 * @throws FileNotFoundException
+	 */
+	public List<Map<String,Object>> fetchFileDatas(String configName, File file) throws FileNotFoundException {
+		ReadConfig config=new ReadConfig(configName);
+		Map<String, Map<String, String>> fields = config.getFields();
+		
+		List<Map<String,Object>> data=new ArrayList<Map<String,Object>>();
+		Map<String,Object> map=fetchFileData(file,fields);
+		data.add(map);
+		return data;
+	}
+	
+	
 
 	/**
 	 * 抽取文件的属性
@@ -95,4 +134,6 @@ public class FetchFileDataUtil {
 		}
 		return map;
 	}
+
+	
 }

@@ -203,4 +203,17 @@ public class FileUtil {
 		}
 		return type;
 	}
+	
+	/**
+	 * 删除集合文件
+	 * @param files
+	 */
+	public void deleteFiles(List<File> files){
+		if(files==null){
+			return;
+		}
+		for (File file : files) {
+			file.deleteOnExit();
+		}
+	}
 }

@@ -1,6 +1,7 @@
 package com.kingbase.lucene.commons.indexer.index;
 
 import java.io.Reader;
+import java.io.StringReader;
 import java.util.Map;
 
 import org.apache.lucene.document.DoubleField;
@@ -96,7 +97,15 @@ public class FieldBuilding {
 			break;
 		//流的格式
 		case "TEXT":
-			field=new TextField(fieldName, fieldValue instanceof Reader?(Reader)fieldValue:null);
+			Reader reader=null;
+			if(fieldValue instanceof String){
+				if(fieldValue!=null){
+					reader=new StringReader(fieldValue.toString());
+				}
+			}else if(fieldValue instanceof Reader){
+				reader=(Reader) fieldValue;
+			}
+			field=new TextField(fieldName,reader);
 			break;
 		default:
 			break;

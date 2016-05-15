@@ -14,13 +14,13 @@ public class ConfigInitialization{
 	
     private static final Logger log=Logger.getLogger(ConfigInitialization.class);
     //读取配置文件信息到内存中
-    public static Map<String,Map<String,Object>> mapData=new HashMap<String,Map<String,Object>>();
+    protected static Map<String,Map<String,Object>> mapData=new HashMap<String,Map<String,Object>>();
 
     /**
      * 获取配置文件的目录
      * @return
      */
-    public static InputStream getConfigStream(){
+    private static InputStream getConfigStream(){
     	log.debug("加载lucen配置文件【"+Config.CONFIGLOCATION+"】");
     	return ConfigInitialization.class.getResourceAsStream(Config.CONFIGLOCATION);
     }

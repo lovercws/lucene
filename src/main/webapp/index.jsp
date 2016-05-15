@@ -4,9 +4,9 @@
 <html>
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-<title>Insert title here</title>
+<title>Lucene全文检索</title>
 </head>
 <body>
-
+<h1 align="center"><a href="<%=request.getContextPath()%>/file/BaseFileServlet.action?type=index">基本检索</a></h1>
 </body>
 </html>

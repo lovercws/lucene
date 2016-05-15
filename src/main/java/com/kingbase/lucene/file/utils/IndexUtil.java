@@ -1,6 +1,5 @@
 package com.kingbase.lucene.file.utils;
 
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
@@ -17,9 +16,9 @@ public class IndexUtil {
 	 * 根据一个目录 来创建索引
 	 * @param configName
 	 * @param directory
-	 * @throws FileNotFoundException
+	 * @throws IOException 
 	 */
-	public void createIndex(String configName,String directory) throws FileNotFoundException{
+	public void createIndex(String configName,String directory) throws IOException{
 		//抽取文件数据
 		FetchFileDataUtil dataUtil=new FetchFileDataUtil();
 		List<Map<String,Object>> datas = dataUtil.fetchFileDatas(configName, directory);
@@ -33,8 +32,9 @@ public class IndexUtil {
 	 * 自定义map集合创建索引
 	 * @param configName
 	 * @param list
+	 * @throws IOException 
 	 */
-	public void createIndex(String configName,List<Map<String,Object>> list){
+	public void createIndex(String configName,List<Map<String,Object>> list) throws IOException{
 		//创建索引
 		IndexBuilding indexBuilding=new IndexBuilding();
 		indexBuilding.build(list, configName);
