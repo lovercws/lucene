@@ -7,6 +7,7 @@ directory_type ram fs(默认ram)
 analyzer 分词器StandardAnalyzer、SimpleAnalyzer、WhitespaceAnalyzer、StopAnalyzer
 fields 字段的集合
 fields 单个字段的域  
+    name 字段的中文名称
 	type 类型 int long float double string text
 	store 存储 true false
 	boost 域加权因子(默认1.0)
@@ -25,42 +26,49 @@ fields 单个字段的域
 		<analyzer>StandardAnalyzer</analyzer>
 		<fields>
 			<field name="id">
+				<name>主键</name>
 				<type>string</type>
 				<store>true</store>
 				<tokenized>false</tokenized>
 				<indexed>DOCS</indexed>
 			</field>
 			<field name="fileName">
+			    <name>文件名称</name>
 				<type>string</type>
 				<store>true</store>
 				<tokenized>true</tokenized>
 				<indexed>DOCS_AND_FREQS_AND_POSITIONS</indexed>
 			</field>
 			<field name="type">
+			    <name>类型</name>
 				<type>string</type>
 				<store>true</store>
 				<tokenized>false</tokenized>
 				<indexed>DOCS</indexed>
 			</field>
 			<field name="size">
+			    <name>大小</name>
 				<type>long</type>
 				<store>true</store>
 				<tokenized>false</tokenized>
 				<indexed>DOCS</indexed>
 			</field>
 			<field name="content">
+			    <name>内容</name>
 				<type>text</type>
 				<store>true</store>
 				<tokenized>true</tokenized>
 				<indexed>DOCS_AND_FREQS_AND_POSITIONS</indexed>
 			</field>
 			<field name="attribute">
+			    <name>属性</name>
 				<type>string</type>
 				<store>true</store>
 				<tokenized>false</tokenized>
 				<indexed>DOCS</indexed>
 			</field>
 			<field name="path">
+			    <name>路径</name>
 				<type>string</type>
 				<store>true</store>
 				<tokenized>true</tokenized>

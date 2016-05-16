@@ -10,6 +10,7 @@ import org.apache.log4j.Logger;
 import org.apache.lucene.queryparser.classic.ParseException;
 import org.apache.lucene.search.SortField.Type;
 
+import com.google.gson.Gson;
 import com.kingbase.lucene.commons.configuration.ReadConfig;
 import com.kingbase.lucene.commons.searcher.BaseSearcher;
 import com.kingbase.lucene.commons.searcher.SimpleSearcher;
@@ -61,42 +62,50 @@ public class BaseFileServiceImpl implements IBaseFileService{
 		BaseSearcher searcher=new SimpleSearcher();
 		ReadConfig config=new ReadConfig(configName);
 		List<Map<String, Object>> data=null;
-		//获取查询的字段
-		Type type = config.getType(fieldName);
 		try {
 			if(fieldName==null||fieldValue==null||"".equals(fieldName)||"".equals(fieldValue)){
 				data = searcher.matchAllDocsQuery(configName);
-			}
-			//如果是数字  则数字查询
-			else if(type==Type.INT||type==Type.FLOAT||type==Type.DOUBLE||type==Type.LONG){
-				data=searchNumber(configName,searcher,type,fieldName,fieldValue);
 			}else{
-				data=searcher.queryParse(configName, fieldName, fieldValue, Integer.MAX_VALUE);
+				fieldName=fieldName.toUpperCase();
+				//获取查询的字段
+				Type type = config.getType(fieldName);
+				//如果是数字  则数字查询
+				if(type==Type.INT||type==Type.FLOAT||type==Type.DOUBLE||type==Type.LONG){
+					data=searchNumber(configName,searcher,type,fieldName,fieldValue);
+				}else{
+					data=searcher.queryParse(configName, fieldName, fieldValue, Integer.MAX_VALUE);
+				}
 			}
 		} catch (Exception e) {
 			log.error("查询异常", e);
 		}
-		String fields=getFields(configName);
-		String json="{'metadata':{'fields':[{},{},{}],'columns':[]}}";
-		return null;
-	}
-
-	private String getFields(String configName) {
-		ReadConfig config=new ReadConfig(configName);
+		
+		//获取fields和columns
+		StringBuilder fieldsBuilder=new StringBuilder("[");
+		StringBuilder columnsBuilder=new StringBuilder("[{xtype: 'rownumberer'},");
+		
 		Map<String, Map<String, String>> fields = config.getFields();
 		Iterator<String> iterator = fields.keySet().iterator();
-		StringBuilder builder=new StringBuilder("[");
 		
 		while(iterator.hasNext()){
-			String fieldName = iterator.next();
-			builder.append("{'name':'"+fieldName+"'}");
+			String name = iterator.next();
+			Map<String, String> map = fields.get(name);
+			fieldsBuilder.append("{'name':'"+name.toUpperCase()+"'}");
 			if(iterator.hasNext()){
-				builder.append(",");
+				fieldsBuilder.append(",");
 			}
+			columnsBuilder.append(",{'text':'"+map.get("NAME")+"','dataIndex':'"+name.toUpperCase()+"',flex:1}");
 		}
-		builder.append("]");
-		return builder.toString();
+		fieldsBuilder.append("]");
+		columnsBuilder.append("]");
+		
+		Gson gson=new Gson();
+		String dataBuilder=gson.toJson(data);
+		
+		String json="{'metaData':{'fields':"+fieldsBuilder.toString()+",'columns':"+columnsBuilder.toString()+",'root':'data'},'data':"+dataBuilder+"}";
+		return json;
 	}
+
 
 	/**
 	 * 数字查询

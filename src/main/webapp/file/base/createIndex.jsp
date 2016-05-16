@@ -18,8 +18,9 @@ Ext.onReady(function(){
 		},
 		items:[{
 			xtype:'hiddenfield',
-			name:'type',
-			value:'addIndex'
+			id:'isMultipartContent',
+			name:'isMultipartContent',
+			value:'true'
 		},{
 			xtype:'textfield',
 			fieldLabel:'文件',
@@ -29,7 +30,7 @@ Ext.onReady(function(){
 			//labelAlign:'right',
 			allowBlank:false,
 			width:400,
-			margin:10,
+			margin:10
 		},{
 			xtype:'filefield',
 			buttonText:'选择文件',
@@ -46,6 +47,7 @@ Ext.onReady(function(){
 							value=value.substring(lastIndexOf+1);
 						}
 						Ext.getCmp('fileNameId').setValue(value);
+						Ext.getCmp('isMultipartContent').setValue("true");
 					}
 				}
 			}
@@ -57,9 +59,10 @@ Ext.onReady(function(){
 			handler:function(){
 				if(form.getForm().isValid()){
 					var directory=Ext.getCmp('fileNameId').getValue();
+					var isMultipartContent=Ext.getCmp('isMultipartContent').getValue();
 					form.getForm().submit({
 						method:'POST',
-						url:'<%=request.getContextPath()%>/file/BaseFileServlet.action?type=addIndex&directory='+directory,
+						url:'<%=request.getContextPath()%>/file/BaseFileServlet.action?type=addIndex&directory='+directory+'&isMultipartContent='+isMultipartContent,
 						success: function(form, action) {
 							var result=action.result.result;
 							while(result.indexOf('/n')>-1){
@@ -67,10 +70,12 @@ Ext.onReady(function(){
 							}
 							var el=document.getElementById('indexPanel');
 							document.getElementById('indexPanel').innerHTML=result;
+							Ext.getCmp('isMultipartContent').setValue("false");
 		                },
 		                failure: function(form, action) {
 		                	var el=document.getElementById('indexPanel');
 							document.getElementById('indexPanel').innerHTML="索引结果：<br/>the request was rejected because its size (26756018) exceeds the configured maximum (2097152)";
+							Ext.getCmp('isMultipartContent').setValue("false");
 		                }
 					});
 				}

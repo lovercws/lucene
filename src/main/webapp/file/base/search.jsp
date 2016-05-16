@@ -19,8 +19,23 @@ Ext.onReady(function(){
 	Ext.create('Ext.data.Store',{
 		storeId:'searchResultStore',
 		autoLoad:{params:{type:'search',fieldName:'',fieldValue:''}},
-	    proxy:{type:'ajax',url:'<%=request.getContextPath()%>/file/BaseFileServlet.action',reader:{type:'json'}}
+	    proxy:{type:'ajax',url:'<%=request.getContextPath()%>/file/BaseFileServlet.action',reader:{type:'json'}},
+		listeners: {
+	        'metachange': function(store, meta) {
+	        	searchResultGridPanel.reconfigure(store, meta.columns);
+	        }
+	    }	
 	});
+	//表单搜索
+	function search(){
+		var formValues=searchForm.getForm().getValues();
+		if(searchForm.getForm().isValid()){
+			var store=Ext.data.StoreManager.lookup('searchResultStore');
+			store.reload({
+				params:{type:'search',fieldName:formValues.fieldName,fieldValue:formValues.fieldValue}
+			});
+		}
+	}
 	//搜索表单
 	var searchForm=Ext.create('Ext.form.Panel',{
 		frame : true,
@@ -31,27 +46,26 @@ Ext.onReady(function(){
 			xtype :'combobox',
 			fieldLabel:'选择域',
 			queryMode:'local',
-			displayField:'fieldName',
+			displayField:'fieldValue',
 			valueField:'fieldName',
 			name :'fieldName',
 			store:Ext.data.StoreManager.lookup('searchComboboxStore')
 		},{
 			xtype :'textfield',
 			name :'fieldValue',
-			margin:'0 0 0 20'
+			margin:'0 0 0 20',
+			listeners:{
+				specialkey: function(field, e){
+                    if (e.getKey() == e.ENTER) {
+                    	search();
+                    }
+                }
+			}
 		},{
 			xtype :'button',
 			text :'搜索',
 			handler :function(btn){
-				//提交表单
-				var formpanel=this.up();
-				var formValues=formpanel.getForm().getValues();
-				if(formpanel.getForm().isValid()){
-					var store=Ext.data.StoreManager.lookup('searchResultStore');
-					store.reload({
-						params:{type:'search',fieldName:formValues.fieldName,fieldValue:formValues.fieldValue}
-					});
-				}
+				search();
 			}
 		}]
 	});
@@ -67,9 +81,16 @@ Ext.onReady(function(){
 		rowLines:true,
 		columnLines:true,
 		store:Ext.data.StoreManager.lookup('searchResultStore'),
-		columns: [{ text: '文件名称',  dataIndex: 'fileName' ,flex:1},
-		          { text: '文件大小',  dataIndex: 'size' ,flex:1},
-		          { text: '文件类型',  dataIndex: 'type' ,flex:1}]
+		columns:[],
+		bbar:['->',{
+			text:'删除',
+			handler:function(){
+			}
+		},{
+			text:'全部删除',
+			handler:function(){
+			}
+		}]
 	});
 	
     Ext.create('Ext.container.Viewport',{
@@ -77,10 +98,9 @@ Ext.onReady(function(){
     		type :'vbox',
     		align:'stretch'
     	},
-    items :[searchForm,searchResultGridPanel]
+        items :[searchForm,searchResultGridPanel]
     })
 });
-
 </script>
 </head>
 <body>

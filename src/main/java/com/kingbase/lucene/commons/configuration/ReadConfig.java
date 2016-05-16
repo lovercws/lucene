@@ -10,6 +10,7 @@ import org.apache.lucene.store.Directory;
 
 import com.kingbase.lucene.commons.analyzer.AnalyzerConfig;
 import com.kingbase.lucene.commons.directory.DirectoryConfig;
+import com.kingbase.lucene.file.config.FieldConfig;
 
 /**
  * 读取配置信息
@@ -106,26 +107,26 @@ public class ReadConfig {
 	 */
 	public Type getType(String fieldName){
 		Map<String, String> field = getField(fieldName);
-		String fieldType = field.get("type");
+		String fieldType = field.get(FieldConfig.TYPE);
 		Type type = null;
 		if(fieldType!=null){
 			switch (fieldType) {
-			case "int":
+			case "INT":
 				type=Type.INT;
 				break;
-			case "float":
+			case "FLOAT":
 				type=Type.FLOAT;
 				break;
-			case "double":
+			case "DOUBLE":
 				type=Type.DOUBLE;
 				break;
-			case "long":
+			case "LONG":
 				type=Type.LONG;
 				break;
-			case "string":
+			case "STRING":
 				type=Type.STRING;
 				break;
-			case "text":
+			case "TEXT":
 				type=Type.BYTES;
 				break;
 			default:

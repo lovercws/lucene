@@ -10,11 +10,9 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
-import java.util.Set;
 
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
-import javax.servlet.ServletInputStream;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -24,11 +22,8 @@ import org.apache.commons.fileupload.FileItem;
 import org.apache.commons.fileupload.disk.DiskFileItemFactory;
 import org.apache.commons.fileupload.servlet.ServletFileUpload;
 import org.apache.log4j.Logger;
-import org.apache.lucene.queryparser.classic.ParseException;
 
 import com.kingbase.lucene.commons.configuration.ReadConfig;
-import com.kingbase.lucene.commons.searcher.BaseSearcher;
-import com.kingbase.lucene.commons.searcher.SimpleSearcher;
 import com.kingbase.lucene.file.service.IBaseFileService;
 import com.kingbase.lucene.file.service.impl.BaseFileServiceImpl;
 import com.kingbase.lucene.file.utils.FileUtil;
@@ -75,9 +70,9 @@ public class BaseFileServlet extends HttpServlet {
 			break;
 		// 添加索引
 		case "addIndex":
-			boolean multipartContent=isMultipartContent(request);
+			String isMultipartContent = request.getParameter("isMultipartContent");
 			//是文件的上传
-			if(multipartContent){
+			if(isMultipartContent!=null&&"true".equalsIgnoreCase(isMultipartContent)){
 				addIndexFromUpload(request, response);
 			}
 			//从本地文件目录
@@ -195,18 +190,8 @@ public class BaseFileServlet extends HttpServlet {
 		
 		IBaseFileService baseFileService=new BaseFileServiceImpl();
 		String json=baseFileService.search(LUCENE_FILE_BASE,fieldName,fieldValue);
+		System.out.println(json);
 		response.getWriter().print(json);
-	}
-	
-    /**
-     * 检测请求是否存在上传的文件
-     * @param request
-     * @return
-     * @throws IOException 
-     */
-	private boolean isMultipartContent(HttpServletRequest request) throws IOException {
-		ServletInputStream inputStream = request.getInputStream();
-		return inputStream.available()>0;
 	}
 	
 	private void getFieldNames(HttpServletRequest request, HttpServletResponse response) throws IOException {
@@ -216,7 +201,8 @@ public class BaseFileServlet extends HttpServlet {
 		Iterator<String> iterator = fields.keySet().iterator();
 		while(iterator.hasNext()){
 			String fieldName = iterator.next();
-			builder.append("{'fieldName':'"+fieldName+"','fieldValue':''}");
+			Map<String, String> map = fields.get(fieldName);
+			builder.append("{'fieldName':'"+fieldName+"','fieldValue':'"+map.get("NAME")+"'}");
 			if(iterator.hasNext()){
 				builder.append(",");
 			}
