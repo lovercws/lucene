@@ -11,6 +11,10 @@ public interface IBaseFileService {
 	 * @param files 文件集合
 	 * @return 
 	 */
-	public boolean addIndexes(String configName, List<File> files);
+	public boolean addIndexFromUpload(String configName, List<File> files);
+
+	public boolean addIndexFromDirectory(String luceneFileBase, String directory);
+
+	public String search(String luceneFileBase, String fieldName, String fieldValue);
 
 }

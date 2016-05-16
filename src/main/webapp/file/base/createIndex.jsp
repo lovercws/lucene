@@ -12,7 +12,6 @@ Ext.onReady(function(){
 	//表单
 	var form=Ext.create('Ext.form.Panel',{
 		titleAlign:'center',
-		title:'基本检索创建',
 		frame:true,
 		layout:{
 			type:'hbox'
@@ -22,26 +21,57 @@ Ext.onReady(function(){
 			name:'type',
 			value:'addIndex'
 		},{
+			xtype:'textfield',
+			fieldLabel:'文件',
+			id:'fileNameId',
+			labelWidth:60,
+			name:'directory',
+			//labelAlign:'right',
+			allowBlank:false,
+			width:400,
+			margin:10,
+		},{
 			xtype:'filefield',
 			buttonText:'选择文件',
-			allowBlank:false,
-			width:300
+			width:0,
+			margin:10,
+			listeners:{
+				change:function(field,value,eOpts){
+					if(value!=null){
+						while(value.indexOf('\\')>-1){
+							value=value.replace('\\','/');
+						}
+						var lastIndexOf=value.lastIndexOf('/');
+						if(lastIndexOf>-1){
+							value=value.substring(lastIndexOf+1);
+						}
+						Ext.getCmp('fileNameId').setValue(value);
+					}
+				}
+			}
 		},{
 			xtype:'button',
 			text:'提交',
-			width:100,
-			margin:'0 0 0 60',
+			width:70,
+			margin:'10 10 10 100',
 			handler:function(){
 				if(form.getForm().isValid()){
+					var directory=Ext.getCmp('fileNameId').getValue();
 					form.getForm().submit({
 						method:'POST',
-						url:'<%=request.getContextPath()%>/file/BaseFileServlet.action?type=addIndex',
+						url:'<%=request.getContextPath()%>/file/BaseFileServlet.action?type=addIndex&directory='+directory,
 						success: function(form, action) {
-		                       Ext.Msg.alert('Success', action.result.msg);
-		                    },
-		                    failure: function(form, action) {
-		                        Ext.Msg.alert('Failed', action.result.msg);
-		                    }
+							var result=action.result.result;
+							while(result.indexOf('/n')>-1){
+								result=result.replace('/n','<br/>');
+							}
+							var el=document.getElementById('indexPanel');
+							document.getElementById('indexPanel').innerHTML=result;
+		                },
+		                failure: function(form, action) {
+		                	var el=document.getElementById('indexPanel');
+							document.getElementById('indexPanel').innerHTML="索引结果：<br/>the request was rejected because its size (26756018) exceeds the configured maximum (2097152)";
+		                }
 					});
 				}
 			}
@@ -50,7 +80,8 @@ Ext.onReady(function(){
 	//索引创建过程显示panel
 	var indexPanel=Ext.create('Ext.panel.Panel',{
 		frame:true,
-		html:''
+		flex:1,
+		html:"<div id='indexPanel'>索引结果：</div>"
 	});
 	
 	Ext.create('Ext.container.Viewport',{

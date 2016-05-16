@@ -5,11 +5,16 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintWriter;
 import java.util.ArrayList;
+import java.util.Date;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
+import java.util.Set;
 
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
+import javax.servlet.ServletInputStream;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -19,7 +24,11 @@ import org.apache.commons.fileupload.FileItem;
 import org.apache.commons.fileupload.disk.DiskFileItemFactory;
 import org.apache.commons.fileupload.servlet.ServletFileUpload;
 import org.apache.log4j.Logger;
+import org.apache.lucene.queryparser.classic.ParseException;
 
+import com.kingbase.lucene.commons.configuration.ReadConfig;
+import com.kingbase.lucene.commons.searcher.BaseSearcher;
+import com.kingbase.lucene.commons.searcher.SimpleSearcher;
 import com.kingbase.lucene.file.service.IBaseFileService;
 import com.kingbase.lucene.file.service.impl.BaseFileServiceImpl;
 import com.kingbase.lucene.file.utils.FileUtil;
@@ -62,11 +71,27 @@ public class BaseFileServlet extends HttpServlet {
 		switch (type) {
 		// 进入到索引目录
 		case "index":
-			response.sendRedirect(request.getContextPath() + "/file/base/createIndex.jsp");
+			response.sendRedirect(request.getContextPath() + "/file/base/index.jsp");
 			break;
 		// 添加索引
 		case "addIndex":
-			addIndex(request, response);
+			boolean multipartContent=isMultipartContent(request);
+			//是文件的上传
+			if(multipartContent){
+				addIndexFromUpload(request, response);
+			}
+			//从本地文件目录
+			else{
+				addIndexFromDirectory(request, response);
+			}
+			break;
+		//获取配置的域名
+		case "getFieldNames":
+			getFieldNames(request, response);
+			break;
+		//查询
+		case "search":
+			search(request, response);
 			break;
 		default:
 			break;
@@ -74,14 +99,20 @@ public class BaseFileServlet extends HttpServlet {
 	}
 
 	/**
-	 * 添加索引
+	 * 从上传的文件中 添加索引
 	 * @param request
 	 * @param response
 	 * @throws IOException 
 	 */
-	private void addIndex(HttpServletRequest request, HttpServletResponse response) throws IOException {
+	@SuppressWarnings("deprecation")
+	private void addIndexFromUpload(HttpServletRequest request, HttpServletResponse response) throws IOException {
 		PrintWriter out = response.getWriter();
 		String tempPath=properties.getProperty("tempPath");//临时目录的名称
+		StringBuilder result=new StringBuilder();
+		result.append("索引............................/n/n");
+		result.append("开始创建索引  "+new Date().toLocaleString()+"/n/n");
+		boolean success=true;
+		
 		if(tempPath==null){
 			tempPath="/temp";
 		}
@@ -119,17 +150,81 @@ public class BaseFileServlet extends HttpServlet {
 			}
 			//添加索引
 			IBaseFileService baseFileService=new BaseFileServiceImpl();
-			boolean success=baseFileService.addIndexes(LUCENE_FILE_BASE,files);
+			baseFileService.addIndexFromUpload(LUCENE_FILE_BASE,files);
 			
 			//删除临时文件
 			FileUtil fileUtil=new FileUtil();
 			fileUtil.deleteFiles(files);
 			
-			out.print("success:"+success);
 		} catch (Exception e) {
-			e.printStackTrace();
-			out.print("success:false");
+			success=false;
+			result.append(e.getLocalizedMessage()+"/n/n");
 		}
+		result.append("创建索引结束  "+new Date().toLocaleString()+"/n/n");
+		out.print("{success:"+success+",result:'"+result.toString()+"'}");
 	}
 
+    /**
+     * @param request
+     * @param response
+     * @throws IOException 
+     */
+	@SuppressWarnings("deprecation")
+	private void addIndexFromDirectory(HttpServletRequest request, HttpServletResponse response) throws IOException {
+		StringBuilder result=new StringBuilder();
+		result.append("索引............................/n/n");
+		result.append("开始创建索引  "+new Date().toLocaleString()+"/n/n");
+		
+		String directory=request.getParameter("directory");
+		IBaseFileService baseFileService=new BaseFileServiceImpl();
+		baseFileService.addIndexFromDirectory(LUCENE_FILE_BASE,directory);
+		
+		result.append("创建索引结束  "+new Date().toLocaleString()+"/n/n");
+		response.getWriter().print("{success:true,result:'"+result.toString()+"'}");
+	}
+	
+	/**
+	 * 查询
+	 * @param request
+	 * @param response
+	 * @throws IOException 
+	 */
+	private void search(HttpServletRequest request, HttpServletResponse response) throws IOException {
+		String fieldName=request.getParameter("fieldName");//域名
+		String fieldValue=request.getParameter("fieldValue");//输入值
+		
+		IBaseFileService baseFileService=new BaseFileServiceImpl();
+		String json=baseFileService.search(LUCENE_FILE_BASE,fieldName,fieldValue);
+		response.getWriter().print(json);
+	}
+	
+    /**
+     * 检测请求是否存在上传的文件
+     * @param request
+     * @return
+     * @throws IOException 
+     */
+	private boolean isMultipartContent(HttpServletRequest request) throws IOException {
+		ServletInputStream inputStream = request.getInputStream();
+		return inputStream.available()>0;
+	}
+	
+	private void getFieldNames(HttpServletRequest request, HttpServletResponse response) throws IOException {
+		ReadConfig config=new ReadConfig(LUCENE_FILE_BASE);
+		Map<String, Map<String, String>> fields = config.getFields();
+		StringBuilder builder=new StringBuilder("[");
+		Iterator<String> iterator = fields.keySet().iterator();
+		while(iterator.hasNext()){
+			String fieldName = iterator.next();
+			builder.append("{'fieldName':'"+fieldName+"','fieldValue':''}");
+			if(iterator.hasNext()){
+				builder.append(",");
+			}
+		}
+		builder.append("]");
+		
+		String json="{'metaData':{'fields':[{'name':'fieldName'},{'name':'fieldValue'}],'root':'data'},'data':"+builder.toString()+"}";
+	    System.out.println(json);
+		response.getWriter().println(json);
+	}
 }
