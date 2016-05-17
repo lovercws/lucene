@@ -27,7 +27,7 @@ public class ReadConfig {
 	@SuppressWarnings({ "unchecked"})
 	public Map<String,Map<String,String>> getFields(){
 		checkMapData();
-		Map<String, Object> configMap =mapData.get(configName.toUpperCase());
+		Map<String, Object> configMap =mapData.get(configName.toLowerCase());
 		return (Map<String, Map<String, String>>) configMap.get(Config.FIELDS);
     }
 	
@@ -53,8 +53,8 @@ public class ReadConfig {
 	 */
 	public Analyzer getAnalyzer(){
 		checkMapData();
-		Map<String, Object> configMap =mapData.get(configName.toUpperCase());
-		String analyzer = configMap.get(Config.ANALYZER).toString().toUpperCase();
+		Map<String, Object> configMap =mapData.get(configName.toLowerCase());
+		String analyzer = configMap.get(Config.ANALYZER).toString().toLowerCase();
 		AnalyzerConfig analyzerUtil=new AnalyzerConfig();
 		//获取配置的分词器
 		return analyzerUtil.analyzer(analyzer);
@@ -66,7 +66,7 @@ public class ReadConfig {
 	 */
 	public Directory getDirectory(){
 		String dir = getDir();
-		Map<String, Object> configMap =mapData.get(configName.toUpperCase());
+		Map<String, Object> configMap =mapData.get(configName.toLowerCase());
 		String directoryType = configMap.get(Config.DIRECTORY_TYPE).toString();
 		
 		DirectoryConfig config=new DirectoryConfig();
@@ -79,14 +79,22 @@ public class ReadConfig {
 	 */
 	public String getDir(){
 		checkMapData();
-		Map<String, Object> configMap =mapData.get(configName.toUpperCase());
+		Map<String, Object> configMap =mapData.get(configName.toLowerCase());
 		String directory = configMap.get(Config.DIRECTORY).toString().toLowerCase();
 		//如果配置的是绝对路径 则直接返回
 		File file = new File(directory);
-		boolean isDirectory = file.isDirectory();
-		if(!isDirectory){
-			String path = ConfigInitialization.class.getResource("/").getPath();
-			directory=path+directory;
+		if(!file.exists()){
+			boolean create = file.mkdirs();
+			//如果配置的不是绝对路径 则取相对路径
+			if(!create){
+				//如果是通过web启动的
+				if(ConfigInitialization.WEB_INDEXES_DIRECTORY!=null){
+					directory=ConfigInitialization.WEB_INDEXES_DIRECTORY+File.separator+directory;
+				}else{
+					String path = ConfigInitialization.class.getResource("/").getPath();
+					directory=path+directory;
+				}
+			}
 		}
 		return  directory;
 	}
@@ -97,7 +105,7 @@ public class ReadConfig {
 	public String getVersion(){
 		checkMapData();
 		System.out.println(mapData);
-		Map<String, Object> configMap =mapData.get(configName.toUpperCase());
+		Map<String, Object> configMap =mapData.get(configName.toLowerCase());
 		return configMap.get(Config.VERSION).toString();
 	}
 	
@@ -107,10 +115,10 @@ public class ReadConfig {
 	 */
 	public Type getType(String fieldName){
 		Map<String, String> field = getField(fieldName);
-		String fieldType = field.get(FieldConfig.TYPE);
+		String fieldType = field.get(FieldConfig.TYPE.toLowerCase());
 		Type type = null;
 		if(fieldType!=null){
-			switch (fieldType) {
+			switch (fieldType.toUpperCase()) {
 			case "INT":
 				type=Type.INT;
 				break;

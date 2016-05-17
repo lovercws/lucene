@@ -53,6 +53,7 @@ public class IndexBuilding {
 	 */
 	public void build(List<Map<String,Object>> list,String configName) throws IOException{
 		try {
+			log.debug("开始创建索引...............");
 			//获取IndexWriter
 			IndexWriter indexWriter = IndexWriterFactory.create(configName);
 			//获取Document
@@ -64,6 +65,7 @@ public class IndexBuilding {
 			
 			//关闭IndexWriter
 			IndexWriterFactory.close(configName);
+			log.debug("创建索引结束...............");
 		} catch (IOException e) {
 			IndexWriterFactory.rollback(configName);//回滚
 			log.error("建立索引失败",e);
@@ -88,6 +90,25 @@ public class IndexBuilding {
 	}
 	
 	/**
+	 * 删除多个文档
+	 * @param configName
+	 * @throws IOException 
+	 */
+	public void delete(String configName,String fieldName,List<String> fieldValues) throws IOException{
+		//获取IndexWriter
+		IndexWriter indexWriter = IndexWriterFactory.create(configName);
+		Term[] terms=new Term[fieldValues.size()];
+		for(int i=0;i<fieldValues.size();i++){
+			terms[i]=new Term(fieldName,fieldValues.get(i));
+		}
+		//删除文档集合
+		indexWriter.deleteDocuments(terms);
+		log.debug("删除文档成功......................");
+		//关闭IndexWriter
+		IndexWriterFactory.close(configName);
+	}
+	
+	/**
 	 * 清空索引
 	 * @param configName
 	 * @throws IOException 
@@ -98,7 +119,7 @@ public class IndexBuilding {
 		
 		//删除所有的索引
 		indexWriter.deleteAll();
-		log.debug("清空索引成功......................");
+		log.debug("清空文档成功......................");
 		indexWriter.deleteUnusedFiles();
 		//关闭IndexWriter
 		IndexWriterFactory.close(configName);

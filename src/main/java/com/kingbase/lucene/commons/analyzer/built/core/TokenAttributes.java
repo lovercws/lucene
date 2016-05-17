@@ -38,7 +38,8 @@ public class TokenAttributes {
 			//String chars = charTerm.toString();
 			//log.debug("charTerm项 "+chars);
 		}
-		analyzer.close();
+		//analyzer.close();
+		tokenStream.close();
 		return builder.toString();
 	}
 	

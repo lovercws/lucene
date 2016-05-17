@@ -70,4 +70,14 @@ public class IndexUtil {
 		IndexBuilding indexBuilding=new IndexBuilding();
 		indexBuilding.delete(configName, fieldName, fieldValue);
 	}
+	
+	/**
+	 * 删除指定的文档
+	 * @param configName
+	 * @throws IOException
+	 */
+	public void delete(String configName,String fieldName,List<String> fieldValues) throws IOException{
+		IndexBuilding indexBuilding=new IndexBuilding();
+		indexBuilding.delete(configName, fieldName, fieldValues);
+	}
 }

@@ -6,9 +6,11 @@ import java.util.Map;
 
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.queryparser.classic.ParseException;
+import org.apache.lucene.search.BooleanClause.Occur;
 import org.apache.lucene.search.Query;
 
 import com.kingbase.lucene.commons.configuration.ReadConfig;
+import com.kingbase.lucene.commons.query.BooleanQueryFactory;
 import com.kingbase.lucene.commons.query.FuzzyQueryFactory;
 import com.kingbase.lucene.commons.query.MatchAllDocsQueryFactory;
 import com.kingbase.lucene.commons.query.NumericRangeQueryFactory;
@@ -258,6 +260,19 @@ public abstract class BaseSearcher {
 		return search(query, configName, count,fieldName);
 	}
 	
+	/**
+	 * 联合查询
+	 * @param querys
+	 * @param occurs
+	 * @param fieldName
+	 * @param count
+	 * @return
+	 * @throws IOException 
+	 */
+	public List<Map<String, Object>> booleanQuery(Query[] querys,Occur[] occurs,String configName,String fieldName,int count) throws IOException{
+		Query booleanQuery = BooleanQueryFactory.createQuery(querys, occurs);
+		return search(booleanQuery, configName, count,fieldName);
+	}
 	
 	public abstract List<Map<String, Object>> search(Query query, String configName, int count,String fieldName) throws IOException;
 }

@@ -6,6 +6,7 @@
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <script type="text/javascript" src="<%=request.getContextPath()%>/js/ext-all.js"></script>
 <link rel="stylesheet" type="text/css" href="<%=request.getContextPath()%>/resources/css/ext-all.css">
+<link rel="stylesheet" type="text/css" href="<%=request.getContextPath()%>/js/base.js">
 <title>创建索引</title>
 <script type="text/javascript">
 Ext.onReady(function(){
@@ -20,7 +21,7 @@ Ext.onReady(function(){
 			xtype:'hiddenfield',
 			id:'isMultipartContent',
 			name:'isMultipartContent',
-			value:'true'
+			value:'false'
 		},{
 			xtype:'textfield',
 			fieldLabel:'文件',

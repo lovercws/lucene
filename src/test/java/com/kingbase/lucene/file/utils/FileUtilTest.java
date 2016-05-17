@@ -4,6 +4,8 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map.Entry;
+import java.util.Properties;
 
 import junit.framework.TestCase;
 
@@ -30,5 +32,14 @@ public class FileUtilTest extends TestCase{
 			System.out.println(file.getPath());
 		}
 		System.out.println(listFiles.size());
+	}
+	
+	public void testGetDir(){
+		Properties properties = System.getProperties();
+		for (Entry<Object, Object> entry : properties.entrySet()) {
+			System.out.println(entry.getKey()+"   "+entry.getValue());
+		}
+		
+		System.out.println(System.getProperty("user.dir"));
 	}
 }

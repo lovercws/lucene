@@ -12,8 +12,10 @@ import org.apache.lucene.search.SortField.Type;
 
 import com.google.gson.Gson;
 import com.kingbase.lucene.commons.configuration.ReadConfig;
+import com.kingbase.lucene.commons.query.QueryParseFactory;
 import com.kingbase.lucene.commons.searcher.BaseSearcher;
-import com.kingbase.lucene.commons.searcher.SimpleSearcher;
+import com.kingbase.lucene.commons.searcher.HighLighterSearch;
+import com.kingbase.lucene.file.config.FieldConfig;
 import com.kingbase.lucene.file.service.IBaseFileService;
 import com.kingbase.lucene.file.utils.FetchFileDataUtil;
 import com.kingbase.lucene.file.utils.IndexUtil;
@@ -59,21 +61,44 @@ public class BaseFileServiceImpl implements IBaseFileService{
 
 	@Override
 	public String search(String configName, String fieldName, String fieldValue) {
-		BaseSearcher searcher=new SimpleSearcher();
+		BaseSearcher searcher=new HighLighterSearch(true,"<a><font color='red'></font></a>");
 		ReadConfig config=new ReadConfig(configName);
 		List<Map<String, Object>> data=null;
 		try {
-			if(fieldName==null||fieldValue==null||"".equals(fieldName)||"".equals(fieldValue)){
+			//如果搜索值为空 那么匹配所有的文档
+			if(fieldValue==null||"".equals(fieldValue)){
 				data = searcher.matchAllDocsQuery(configName);
-			}else{
-				fieldName=fieldName.toUpperCase();
-				//获取查询的字段
+			}
+			//域名为空 那么只能通过queryParser搜索
+			else if(fieldName==null||"".equals(fieldName)){
+				data=searcher.queryParse(configName, fieldName, fieldValue, Integer.MAX_VALUE);
+			}
+			//域名 和域值 都不为空
+			else{
+				fieldName=fieldName.toLowerCase();
+				fieldValue=fieldValue.trim();
+				//获取查询的字段的类型
 				Type type = config.getType(fieldName);
+				
 				//如果是数字  则数字查询
 				if(type==Type.INT||type==Type.FLOAT||type==Type.DOUBLE||type==Type.LONG){
 					data=searchNumber(configName,searcher,type,fieldName,fieldValue);
 				}else{
-					data=searcher.queryParse(configName, fieldName, fieldValue, Integer.MAX_VALUE);
+					//是queryParser
+					if(QueryParseFactory.isQueryParse(fieldValue)){
+						if(fieldValue.contains(":")){
+							
+						}
+						data=searcher.queryParse(configName, fieldName, fieldValue, Integer.MAX_VALUE);
+					}else{
+						data=searcher.termQuery(configName, fieldName, fieldValue, Integer.MAX_VALUE);
+						if(data.size()==0){
+							data=searcher.prefixQuery(configName, fieldName, fieldValue, Integer.MAX_VALUE);
+							if(data.size()==0){
+								data=searcher.fuzzyQuery(configName, fieldName, fieldValue, Integer.MAX_VALUE);
+							}
+						}
+					}
 				}
 			}
 		} catch (Exception e) {
@@ -89,12 +114,22 @@ public class BaseFileServiceImpl implements IBaseFileService{
 		
 		while(iterator.hasNext()){
 			String name = iterator.next();
+			//文档内容不保存 不显示文档内容
+			if(FieldConfig.CONTENT.equalsIgnoreCase(name)){
+				continue;
+			}
 			Map<String, String> map = fields.get(name);
-			fieldsBuilder.append("{'name':'"+name.toUpperCase()+"'}");
+			fieldsBuilder.append("{'name':'"+name+"'}");
 			if(iterator.hasNext()){
 				fieldsBuilder.append(",");
 			}
-			columnsBuilder.append(",{'text':'"+map.get("NAME")+"','dataIndex':'"+name.toUpperCase()+"',flex:1}");
+			if(FieldConfig.PATH.equalsIgnoreCase(name)){
+				columnsBuilder.append(",{'text':'"+map.get(FieldConfig.NAME)+"','dataIndex':'"+name+"',flex:4}");
+			}else if(FieldConfig.SIZE.equalsIgnoreCase(name)||FieldConfig.TYPE.equalsIgnoreCase(name)||FieldConfig.ATTRIBUTE.equalsIgnoreCase(name)){
+				columnsBuilder.append(",{'text':'"+map.get(FieldConfig.NAME)+"','dataIndex':'"+name+"'}");
+			}else{
+				columnsBuilder.append(",{'text':'"+map.get(FieldConfig.NAME)+"','dataIndex':'"+name+"',flex:1}");
+			}
 		}
 		fieldsBuilder.append("]");
 		columnsBuilder.append("]");
@@ -130,6 +165,34 @@ public class BaseFileServiceImpl implements IBaseFileService{
 			number=Long.parseLong(fieldValue);
 		}
 		return searcher.numericRangeQuery(configName, fieldName, number, Integer.MAX_VALUE);
+	}
+
+	@Override
+	public String delete(String configName, String fieldName, List<String> fieldValues) {
+		IndexUtil indexUtil=new IndexUtil();
+		String json="";
+		try {
+			indexUtil.delete(configName, fieldName, fieldValues);
+			json="{success:true}";
+		} catch (IOException e) {
+			json="{success:false,msg:'"+e.getLocalizedMessage()+"'}";
+			e.printStackTrace();
+		}
+		return json;
+	}
+	
+	@Override
+	public String deleteAll(String configName) {
+		IndexUtil indexUtil=new IndexUtil();
+		String json="";
+		try {
+			indexUtil.clear(configName);
+			json="{success:true}";
+		} catch (IOException e) {
+			json="{success:false,msg:'"+e.getLocalizedMessage()+"'}";
+			e.printStackTrace();
+		}
+		return json;
 	}
 
 }

@@ -1,5 +1,8 @@
 package com.kingbase.lucene.commons.query;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.queryparser.classic.ParseException;
 import org.apache.lucene.queryparser.classic.QueryParser;
@@ -27,6 +30,18 @@ import org.apache.lucene.search.Query;
  */
 public class QueryParseFactory {
 
+	private static final List<String> operators=new ArrayList<String>();
+	static{
+		operators.add("+");
+		operators.add(" AND ");
+		operators.add(" OR ");
+		operators.add(" NOT ");
+		operators.add("-");
+		operators.add(":");
+		operators.add("~");
+		operators.add("*");
+		operators.add(" ");
+	}
 	/**
 	 * 创建查询
 	 * @param fieldName 字段名称
@@ -38,5 +53,22 @@ public class QueryParseFactory {
 	public static Query createQuery(String fieldName,String inputValue,Analyzer analyzer) throws ParseException{
 		QueryParser queryParser = new QueryParser(fieldName, analyzer);
 		return queryParser.parse(inputValue);
+	}
+	
+	/**
+	 * 判断是否是queryParse查询
+	 * @param fieldValue
+	 * @return
+	 */
+	public static boolean isQueryParse(String fieldValue){
+		if(fieldValue==null||"".equals(fieldValue)){
+			return false;
+		}
+		for (String operator : operators) {
+			if(fieldValue.toUpperCase().contains(operator)){
+				return true;
+			}
+		}
+		return false;
 	}
 }

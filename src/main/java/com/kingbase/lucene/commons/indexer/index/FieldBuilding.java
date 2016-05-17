@@ -23,11 +23,11 @@ public class FieldBuilding {
 	public Field createField(Map<String, String> fieldAttrMap, String fieldName, Object fieldValue){
 		FieldType FIELDTYPE=new FieldType();
 		//字段存储
-		String store = fieldAttrMap.get("STORE");
-		String tokenized = fieldAttrMap.get("TOKENIZED");
-		String indexed = fieldAttrMap.get("INDEXED");
-		String type = fieldAttrMap.get("TYPE");
-		String boost=fieldAttrMap.get("BOOST");
+		String store = fieldAttrMap.get("store");
+		String tokenized = fieldAttrMap.get("tokenized");
+		String indexed = fieldAttrMap.get("indexed");
+		String type = fieldAttrMap.get("type");
+		String boost=fieldAttrMap.get("boost");
 		
 		if("TRUE".equalsIgnoreCase(store)){
 			FIELDTYPE.setStored(true);
@@ -59,11 +59,12 @@ public class FieldBuilding {
 	 * @return
 	 */
 	private Field getField(String type, FieldType FIELDTYPE, String fieldName, Object fieldValue) {
+		fieldName=fieldName.toLowerCase();
 		if(type==null){
 			throw new IllegalArgumentException("字段类型不能为空");
 		}
 		Field field=null;
-		switch (type) {
+		switch (type.toUpperCase()) {
 		case "INT":
 			FIELDTYPE.setOmitNorms(true);
 			FIELDTYPE.setNumericType(FieldType.NumericType.INT);

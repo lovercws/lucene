@@ -162,7 +162,7 @@
 	    <dependency>
 			<groupId>com.kingbase</groupId>
 			<artifactId>paoding</artifactId>
-			<version>${project.version}</version>
+			<version>5</version>
 		</dependency>
 	</dependencies>
 	

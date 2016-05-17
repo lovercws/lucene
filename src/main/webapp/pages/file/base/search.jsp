@@ -6,6 +6,7 @@
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <title>索引搜索</title>
 <script type="text/javascript" src="<%=request.getContextPath()%>/js/ext-all.js"></script>
+<script type="text/javascript" src="<%=request.getContextPath()%>/js/base.js"></script>
 <link rel="stylesheet" type="text/css" href="<%=request.getContextPath()%>/resources/css/ext-all.css">
 <script type="text/javascript">
 Ext.onReady(function(){
@@ -40,7 +41,7 @@ Ext.onReady(function(){
 	var searchForm=Ext.create('Ext.form.Panel',{
 		frame : true,
 		padding:0,
-		layout :'column',
+		layout :'hbox',
 		padding:10,
 		items :[{
 			xtype :'combobox',
@@ -49,10 +50,14 @@ Ext.onReady(function(){
 			displayField:'fieldValue',
 			valueField:'fieldName',
 			name :'fieldName',
+			labelWidth:80,
 			store:Ext.data.StoreManager.lookup('searchComboboxStore')
 		},{
 			xtype :'textfield',
 			name :'fieldValue',
+			fieldLabel:'输入域值',
+			labelWidth:80,
+			width:400,
 			margin:'0 0 0 20',
 			listeners:{
 				specialkey: function(field, e){
@@ -62,8 +67,9 @@ Ext.onReady(function(){
                 }
 			}
 		},{
-			xtype :'button',
+			xtype:'button',
 			text :'搜索',
+			margin:'0 0 0 20',
 			handler :function(btn){
 				search();
 			}
@@ -80,15 +86,44 @@ Ext.onReady(function(){
 		autoScroll:true,
 		rowLines:true,
 		columnLines:true,
+		selModel: {
+		    selType: 'rowmodel',
+		    mode   : 'MULTI'
+		},
 		store:Ext.data.StoreManager.lookup('searchResultStore'),
 		columns:[],
 		bbar:['->',{
 			text:'删除',
 			handler:function(){
+				var selected=searchResultGridPanel.getSelectionModel().getSelection();//获取选择的行
+				if(selected&&selected.length>0){
+					Ext.MessageBox.confirm('提示','你确定要删除吗?',function(btn){
+						var data=[];
+						for(var i=0,len=selected.length;i<len;i++){
+							data.push(selected[i].data);
+						}
+						var result=handleRequest('<%=request.getContextPath()%>/file/BaseFileServlet.action', 'delete', JSON.stringify(data));
+						//删除 已经删除的文档
+						searchResultGridPanel.getStore().remove(selected);
+					});
+				}else{
+					Ext.MessageBox.alert('提示','请选择删除');
+				}
 			}
 		},{
 			text:'全部删除',
 			handler:function(){
+				var total=searchResultGridPanel.getStore().getCount();
+				if(total>0){
+					Ext.MessageBox.confirm('提示','你确定要删除吗?',function(btn){
+						var result=handleRequest('<%=request.getContextPath()%>/file/BaseFileServlet.action', 'deleteAll', null);
+						//删除 已经删除的文档
+						searchResultGridPanel.getStore().removeAll();
+					});
+				}else{
+					Ext.MessageBox.alert('提示','没有可以删除的');
+				}
+				
 			}
 		}]
 	});

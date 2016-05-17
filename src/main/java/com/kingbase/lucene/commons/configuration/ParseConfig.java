@@ -68,7 +68,7 @@ public class ParseConfig {
     		log.debug("读取配置【"+configName+"】中.........");
     		
     		Map<String,Object> configmap=analyzerConfig(config);
-    		mapData.put(configName.toUpperCase(), configmap);
+    		mapData.put(configName.toLowerCase(), configmap);
     		
     		log.debug("读取配置【"+configName+"】结束.........");
     		if(iterator.hasNext()){
@@ -98,11 +98,11 @@ public class ParseConfig {
 				log.debug("开始解析字段集合FIELDS");
 				Map<String,Map<String,String>> fieldsMap=parseFields(element);
 				log.debug("解析字段集合FIELDS结束");
-				configmap.put(name.toUpperCase(), fieldsMap);//将字段的map放入配置map中
+				configmap.put(name.toLowerCase(), fieldsMap);//将字段的map放入配置map中
 			}else{
 				//将version directory存入configMap中
-				configmap.put(name.toUpperCase(), value.toUpperCase());
-				log.debug("配置信息 "+name.toUpperCase()+" "+value.toUpperCase());
+				configmap.put(name.toLowerCase(), value.toUpperCase());
+				log.debug("配置信息 "+name.toLowerCase()+" "+value.toUpperCase());
 			}
 		}
 		return configmap;
@@ -128,7 +128,7 @@ public class ParseConfig {
 			}
 			String fieldName=nameAttribute.getValue();
 			Map<String,String> fieldMap=parseField(fieldElement);
-			fieldsMap.put(fieldName, fieldMap);
+			fieldsMap.put(fieldName.toLowerCase(), fieldMap);
 			log.debug("字段"+fieldName+" "+fieldMap);
 		}
 		return fieldsMap;
@@ -147,7 +147,7 @@ public class ParseConfig {
 		for (Element attributeElement : attributeElements) {
 			String attrName = attributeElement.getName();
 			String attrValue = attributeElement.getTextTrim();
-			fieldMap.put(attrName.toUpperCase(),attrValue.toUpperCase());
+			fieldMap.put(attrName.toLowerCase(),attrValue.toLowerCase());
 		}
 		return fieldMap;
 	}

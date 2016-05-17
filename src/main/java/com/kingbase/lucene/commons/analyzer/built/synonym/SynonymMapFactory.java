@@ -5,6 +5,8 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.Reader;
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
 import java.util.Map.Entry;
 import java.util.Properties;
 
@@ -90,7 +92,11 @@ public class SynonymMapFactory {
         
 		// 获取classes目录
 		String classesDir = SynonymMapFactory.class.getResource("/").getPath();
-		
+		try {
+			classesDir=URLDecoder.decode(classesDir, "UTF-8");
+		} catch (UnsupportedEncodingException e) {
+			e.printStackTrace();
+		}
 		// 排除测试环境
 		classesDir = classesDir.replace("test-classes", "classes");
 		
