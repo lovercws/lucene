@@ -51,12 +51,14 @@ Ext.onReady(function(){
 	            fieldLabel: '分词器选择',
 	            xtype:'combobox',
 	            name: 'analyzerName',
-	            labelAlign:'top',
+	            labelAlign:'left',
+	            labelWidth:70,
 	            queryMode: 'local',
 	            displayField: 'analyzerName',
 	            valueField: 'analyzerName',
 	            store:Ext.data.StoreManager.lookup('analyzerComboboxStore'),
 	            maxWidth:400,
+	            height:20,
 	            listeners:{
 	            	select:function(combo,records,eOpts){
 	            		var record=records[0];
@@ -68,12 +70,12 @@ Ext.onReady(function(){
 	            fieldLabel: '分词器简介',
 	            id:'analyzerDesc',
 	            name: 'analyzerDesc',
-	            labelAlign:'top',
-	            minHeight:300
+	            labelWidth:70,
+	            labelAlign:'left'
 	        }]
 	    },{
 	    	xtype:'fieldset',
-	    	flex:2,
+	    	flex:3,
 	        title: '输入短语',
 	        collapsible: false,
 	        layout: {
@@ -131,7 +133,7 @@ Ext.onReady(function(){
     		align:'stretch'
     	},
         items :[analyzerForml]
-    })
+    });
 });
 </script>
 </head>
