@@ -77,31 +77,11 @@ fields 单个字段的域
 		</fields>
 	</config>
 	
-	<!-- mmseg中文分词器 -->
-	<config name="lucene_mmseg_simple">
+	<!-- 数据库分词器 -->
+	<config name="lucene_db_base">
 		<version>5.5.1</version>
-		<directory>lucene/mmseg/simple</directory>
+		<directory>E:\workspace\lucene\src\main\webapp\indexes\lucene\db\base</directory>
 		<directory_type>fs</directory_type>
-		<analyzer>MmsegSimpleAnalyzer</analyzer>
-		<fields>
-			<field name="id">
-				<type>string</type>
-				<store>true</store>
-				<tokenized>false</tokenized>
-				<indexed>DOCS</indexed>
-			</field>
-			<field name="fileName">
-				<type>string</type>
-				<store>true</store>
-				<tokenized>true</tokenized>
-				<indexed>DOCS_AND_FREQS_AND_POSITIONS</indexed>
-			</field>
-			<field name="content">
-				<type>text</type>
-				<store>true</store>
-				<tokenized>true</tokenized>
-				<indexed>DOCS_AND_FREQS_AND_POSITIONS</indexed>
-			</field>
-		</fields>
+		<analyzer>StandardAnalyzer</analyzer>
 	</config>
 </lucene>
