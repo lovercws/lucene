@@ -8,5 +8,6 @@
 </head>
 <body>
 <h1 align="center"><a href="<%=request.getContextPath()%>/file/BaseFileServlet.action?type=index">基本检索</a></h1>
+<h1 align="center"><a href="<%=request.getContextPath()%>/pages/db/base/index.jsp">数据库检索</a></h1>
 </body>
 </html>

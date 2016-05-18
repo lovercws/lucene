@@ -46,4 +46,11 @@ public class ConfigInitialization{
     	mapData=parseConfig.parse(stream);
     }
 	
+    //返回lucene配置信息
+    public static Map<String,Map<String,Object>> getMapData(){
+    	if(mapData.size()==0){
+    		load();
+    	}
+    	return mapData;
+    }
 }

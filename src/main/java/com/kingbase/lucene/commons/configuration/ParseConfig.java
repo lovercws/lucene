@@ -101,8 +101,8 @@ public class ParseConfig {
 				configmap.put(name.toLowerCase(), fieldsMap);//将字段的map放入配置map中
 			}else{
 				//将version directory存入configMap中
-				configmap.put(name.toLowerCase(), value.toUpperCase());
-				log.debug("配置信息 "+name.toLowerCase()+" "+value.toUpperCase());
+				configmap.put(name.toLowerCase(), value.toLowerCase());
+				log.debug("配置信息 "+name.toLowerCase()+" "+value.toLowerCase());
 			}
 		}
 		return configmap;
