@@ -21,7 +21,7 @@ public class ConfigInitialization{
      * 获取配置文件的目录
      * @return
      */
-    private static InputStream getConfigStream(){
+    public static InputStream getConfigStream(){
     	log.debug("加载lucen配置文件【"+Config.CONFIGLOCATION+"】");
     	return ConfigInitialization.class.getResourceAsStream(Config.CONFIGLOCATION);
     }

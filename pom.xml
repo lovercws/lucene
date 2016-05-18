@@ -139,6 +139,7 @@
 			<version>1.10</version>
 		</dependency>
 		
+		
 		<!-- IKAnalyzer中文分词器 -->
 		<dependency>
 	        <groupId>org.wltea.ik-analyzer</groupId>

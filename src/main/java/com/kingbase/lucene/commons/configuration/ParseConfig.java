@@ -1,5 +1,6 @@
 package com.kingbase.lucene.commons.configuration;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -42,6 +43,12 @@ public class ParseConfig {
     		document =reader.read(stream);  
     	}catch(Exception e){
     		log.error("解析xml出现异常!",e);
+    	}finally{
+    		try {
+				stream.close();
+			} catch (IOException e) {
+				log.error(e);
+			}
     	}
     	return document;
     }

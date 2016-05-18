@@ -12,7 +12,7 @@
 Ext.onReady(function(){
 	var mapData=null;//集合配置
 	var configNames=[];//配置名称集合
-	var fieldArray=[];
+	var fieldArray=[];//字段集合
 	var config=null;//配置信息
 	//闭包获取配置集合
 	(function(){
@@ -78,6 +78,8 @@ Ext.onReady(function(){
 	          {fieldName:'size',fieldValue:'大小'},
 	          {fieldName:'content',fieldValue:'内容'},
 	          {fieldName:'attribute',fieldValue:'属性'},
+	          {fieldName:'createdate',fieldValue:'文件创建日期'},
+	          {fieldName:'lasrmodifydate',fieldValue:'文件最后修改日期'},
 	          {fieldName:'path',fieldValue:'路径'}]
 	});
 	
@@ -98,18 +100,52 @@ Ext.onReady(function(){
 		bbar:['->',{
 			text:'新增',
 			handler:function(){
+				var combobox=Ext.getCmp('fieldNameCombobox');
+				combobox.setValue("");
+				combobox.setRawValue("");
+				combobox.setDisabled(false);
+				
+				var array=[];
+				combobox.getStore().each(function(record){
+					var fieldName=record.data.fieldName,exists=false;
+					for(var i=0,len=fieldArray.length;i<len;i++){
+						if(fieldArray[i].fieldName.toLowerCase()==fieldName.toLowerCase()){
+							exists=true;
+							break;
+						}
+					}
+					if(!exists){
+						array.push(record.data);
+					}
+				});
+				combobox.getStore().loadData(array);	
 				fieldWin.show();
 			}
 		},{
 			text:'编辑',
-			handler:function(){}
+			handler:function(){
+				var selected=fieldsGrid.getSelectionModel().getSelection();
+				if(selected&&selected.length>0){
+					fieldForm.getForm().setValues(selected[0].data);
+					Ext.getCmp('fieldNameCombobox').setDisabled(true);
+					fieldWin.show();
+				}
+			}
 		},{
 			text:'删除',
 			handler:function(){}
 		},{
 			text:'全部删除',
 			handler:function(){}
-		}]
+		}],
+		listeners:{
+			itemdblclick:function(grid,record,item,index,e,eOpts){
+				console.log(record.data);
+				fieldForm.getForm().setValues(record.data);
+				Ext.getCmp('fieldNameCombobox').setDisabled(true);
+				fieldWin.show();
+			}
+		}
 	});
 	//字段表单
 	var fieldForm=Ext.create('Ext.form.Panel',{
@@ -129,12 +165,14 @@ Ext.onReady(function(){
 			align:'stretch'
 		},
 		items:[{
+			id:'fieldNameCombobox',
 			xtype:'combobox',
 			fieldLabel:'域名',
 			name:'fieldName',
         	queryMode: 'local',
 	        displayField: 'fieldValue',
 	        valueField: 'fieldName',
+	        allowBlank:false,
 	        store:Ext.data.StoreManager.lookup('fieldNameComboboxStore'),
 		},{
 			xtype      : 'fieldcontainer',
@@ -186,18 +224,35 @@ Ext.onReady(function(){
         	queryMode: 'local',
 	        displayField: 'indexedValue',
 	        valueField: 'indexed',
+	        allowBlank:false,
 	        store:{
+	        	storeId:'indexedComboboxStore',
 	        	fields:['indexed','indexedValue'],
-	        	data:[{indexed:'NONE',indexedValue:'不索引'},
-	        	      {indexed:'DOCS',indexedValue:'索引'},
-	        	      {indexed:'DOCS_AND_FREQS',indexedValue:'索引、频率'},
-	        	      {indexed:'DOCS_AND_FREQS_AND_POSITIONS',indexedValue:'索引、频率、位置增量'},
-	        	      {indexed:'DOCS_AND_FREQS_AND_POSITIONS_AND_OFFSETS',indexedValue:'索引、频率、位置增量、偏移量'}]
+	        	data:[{indexed:'none',indexedValue:'不索引'},
+	        	      {indexed:'docs',indexedValue:'索引'},
+	        	      {indexed:'docs_and_freqs',indexedValue:'索引、频率'},
+	        	      {indexed:'docs_and_freqs_and_positions',indexedValue:'索引、频率、位置增量'},
+	        	      {indexed:'docs_and_freqs_and_positions_and_offsets',indexedValue:'索引、频率、位置增量、偏移量'}]
 	        }
 		}],
 		bbar:['->',{
 			text:'保存',
-			handler:function(){}
+			handler:function(){
+				if(fieldForm.getForm().isValid()){
+					var configName=Ext.getCmp('configNameCombobox').getValue();
+					fieldForm.getForm().submit({
+						method:'POST',
+						url:'<%=request.getContextPath()%>/file/ConfigServlet.action',
+						params:{type:'update',configName:configName},
+						success:function(form,action){
+							
+						},
+						failure:function(form,action){
+								
+						}
+					});
+				}
+			}
 		},{
 			text:'关闭',
 			handler:function(){

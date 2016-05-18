@@ -21,7 +21,7 @@ fields 单个字段的域
 <lucene>
 	<config name="lucene_file_base">
 		<version>5.5.1</version>
-		<directory>E:\workspace\lucene\src\main\webapp\indexes\lucene\file\base</directory>
+		<directory>E:\workspaceLucene\lucene\src\main\webapp\indexes\lucene\file\base</directory>
 		<directory_type>fs</directory_type>
 		<analyzer>StandardAnalyzer</analyzer>
 		<fields>
@@ -80,7 +80,7 @@ fields 单个字段的域
 	<!-- 数据库分词器 -->
 	<config name="lucene_db_base">
 		<version>5.5.1</version>
-		<directory>E:\workspace\lucene\src\main\webapp\indexes\lucene\db\base</directory>
+		<directory>E:\workspaceLucene\lucene\src\main\webapp\indexes\lucene\db\base</directory>
 		<directory_type>fs</directory_type>
 		<analyzer>StandardAnalyzer</analyzer>
 	</config>

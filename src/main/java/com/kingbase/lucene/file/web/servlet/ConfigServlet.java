@@ -1,6 +1,7 @@
 package com.kingbase.lucene.file.web.servlet;
 
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.Map;
 
 import javax.servlet.ServletException;
@@ -13,6 +14,8 @@ import org.apache.log4j.Logger;
 
 import com.google.gson.Gson;
 import com.kingbase.lucene.commons.configuration.ConfigInitialization;
+import com.kingbase.lucene.file.service.IconfigService;
+import com.kingbase.lucene.file.service.impl.ConfigServiceImpl;
 
 /**
  * 配置集合
@@ -40,8 +43,24 @@ public class ConfigServlet extends HttpServlet{
 			response.getWriter().print(json);
 			log.debug("读取配置信息  "+json);
 			break;
-		//分解短语
-		case "tokenStream":
+		//更新字段集合
+		case "update":
+			IconfigService configService=new ConfigServiceImpl();
+			String configName=request.getParameter("configName");
+			String fieldName=request.getParameter("fieldName");
+			String store=request.getParameter("store");
+			String tokenized=request.getParameter("tokenized");
+			String indexed=request.getParameter("indexed");
+			
+			Map<String,String> map=new HashMap<String,String>();
+			map.put("configName", configName);
+			map.put("fieldName", fieldName);
+			map.put("store", store);
+			map.put("tokenized", tokenized);
+			map.put("indexed", indexed);
+			
+			boolean success=configService.updateConfig(map);
+			response.getWriter().print("{success:"+success+"}");
 			break;
 		default:
 			throw new IllegalArgumentException();
