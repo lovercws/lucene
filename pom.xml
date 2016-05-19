@@ -165,6 +165,27 @@
 			<artifactId>paoding</artifactId>
 			<version>5</version>
 		</dependency>
+		
+	    <dependency>
+		    <groupId>net.sf.saxon</groupId>
+		    <artifactId>saxon-xpath</artifactId>
+		    <version>8.7</version>
+		</dependency>
+		<dependency>
+		    <groupId>jaxen</groupId>
+		    <artifactId>jaxen</artifactId>
+		    <version>1.1.6</version>
+		</dependency>
+		<dependency>
+		    <groupId>net.sf.saxon</groupId>
+		    <artifactId>saxon-dom</artifactId>
+		    <version>8.7</version>
+		</dependency>
+		<dependency>
+		    <groupId>net.sf.saxon</groupId>
+		    <artifactId>Saxon-HE</artifactId>
+		    <version>9.7.0-4</version>
+		</dependency>
 	</dependencies>
 	
 	<build>
